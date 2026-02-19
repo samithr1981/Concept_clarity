@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokens & Embeddings Visualizer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #f8f7ff;
+    --surface: #ffffff;
+    --panel: #f1f0fa;
+    --border: #ddd8f5;
+    --accent1: #7c3aed;
+    --accent2: #0891b2;
+    --accent3: #d97706;
+    --accent4: #059669;
+    --text: #1e1b4b;
+    --muted: #6b7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+
+  /* STEP CARDS */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .step-1::before { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+  .step-2::before { background: linear-gradient(90deg, #06b6d4, #0ea5e9); }
+  .step-3::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
+  .step-4::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-1 .step-num { background: rgba(124,58,237,0.1); color: #6d28d9; border: 1px solid #7c3aed; }
+  .step-2 .step-num { background: rgba(6,182,212,0.1); color: #0e7490; border: 1px solid #06b6d4; }
+  .step-3 .step-num { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid #f59e0b; }
+  .step-4 .step-num { background: rgba(16,185,129,0.1); color: #047857; border: 1px solid #10b981; }
+
+  .step-title {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-left: auto;
+  }
+
+  /* INPUT SECTION */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent1);
+  }
+
+  button {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  button:hover { opacity: 0.9; transform: translateY(-1px); }
+  button:active { transform: translateY(0); }
+
+  /* TOKEN CHIPS */
+  .tokens-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 48px;
+  }
+
+  .token-chip {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: popIn 0.3s ease backwards;
+    position: relative;
+  }
+
+  .token-chip:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(124,58,237,0.15);
+  }
+
+  .token-chip::after {
+    content: attr(data-id);
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: var(--muted);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .token-chip:hover::after { opacity: 1; }
+
+  @keyframes popIn {
+    from { transform: scale(0.5) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  /* TOKEN COLORS */
+  .tc-0 { background: rgba(124,58,237,0.1); color: #6d28d9; border: 1px solid rgba(124,58,237,0.3); }
+  .tc-1 { background: rgba(6,182,212,0.1); color: #0e7490; border: 1px solid rgba(6,182,212,0.3); }
+  .tc-2 { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid rgba(245,158,11,0.3); }
+  .tc-3 { background: rgba(16,185,129,0.1); color: #047857; border: 1px solid rgba(16,185,129,0.3); }
+  .tc-4 { background: rgba(239,68,68,0.1); color: #b91c1c; border: 1px solid rgba(239,68,68,0.3); }
+  .tc-5 { background: rgba(236,72,153,0.1); color: #9d174d; border: 1px solid rgba(236,72,153,0.3); }
+  .tc-6 { background: rgba(99,102,241,0.1); color: #4338ca; border: 1px solid rgba(99,102,241,0.3); }
+  .tc-7 { background: rgba(20,184,166,0.1); color: #0f766e; border: 1px solid rgba(20,184,166,0.3); }
+
+  /* TOKEN ID GRID */
+  .token-id-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .token-id-box {
+    padding: 8px 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-align: center;
+    animation: popIn 0.3s ease backwards;
+  }
+
+  .token-id-box .word {
+    color: var(--muted);
+    font-size: 10px;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .token-id-box .id {
+    color: var(--accent2);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  /* EMBEDDING VISUALIZATION */
+  .embedding-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    animation: slideIn 0.4s ease backwards;
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .embedding-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .emb-token {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-weight: 700;
+  }
+
+  .emb-dims {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .vector-bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 50px;
+  }
+
+  .vbar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    transition: height 0.5s ease;
+    min-width: 3px;
+    position: relative;
+  }
+
+  .vbar.negative {
+    border-radius: 0 0 2px 2px;
+    align-self: flex-start;
+  }
+
+  .vector-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .vval {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 2px 5px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 3px;
+    color: var(--muted);
+  }
+
+  /* SIMILARITY MATRIX */
+  .similarity-grid {
+    display: grid;
+    gap: 3px;
+  }
+
+  .sim-row {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .sim-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    width: 80px;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sim-cell {
+    width: 40px;
+    height: 36px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    transition: transform 0.2s;
+    cursor: default;
+  }
+
+  .sim-cell:hover { transform: scale(1.2); z-index: 10; position: relative; }
+
+  .sim-header-row {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 3px;
+    padding-left: 83px;
+  }
+
+  .sim-header-cell {
+    width: 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ARROW */
+  .arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 20px;
+    margin: 8px 0;
+    animation: bounce 1s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .stat-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent2);
+  }
+
+  .empty-state {
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 16px 0;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  .note {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    font-family: 'Space Mono', monospace;
+    margin-top: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Tokens & Embeddings</h1>
+  <p class="subtitle">// visual explainer — type any text to see how LLMs process it</p>
+
+  <!-- STEP 1: INPUT -->
+  <div class="step step-1">
+    <div class="step-header">
+      <div class="step-num">01</div>
+      <div class="step-title">Raw Text Input</div>
+      <div class="step-desc">what you type</div>
+    </div>
+    <div class="input-row">
+      <input type="text" id="inputText" value="Best travel credit card India" placeholder="Type any sentence..." />
+      <button onclick="process()">Tokenize</button>
+    </div>
+    <div class="note">Try: "HDFC Regalia lounge access" or "Best cashback card Rs 50000"</div>
+  </div>
+
+  <!-- STEP 2: TOKENS -->
+  <div class="arrow">↓</div>
+  <div class="step step-2">
+    <div class="step-header">
+      <div class="step-num">02</div>
+      <div class="step-title">Tokenization</div>
+      <div class="step-desc">text → word pieces</div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:14px;">
+      The text is split into tokens — words, subwords, or characters. Each token gets a unique ID from the model's vocabulary (~50,000 tokens).
+    </p>
+    <div class="tokens-container" id="tokensDisplay">
+      <span class="empty-state">← hit Tokenize to see tokens appear here</span>
+    </div>
+    <div class="stats-row" id="statsRow" style="display:none">
+      <div class="stat-box">
+        <div class="stat-label">TOKENS</div>
+        <div class="stat-value" id="statTokens">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">CHARACTERS</div>
+        <div class="stat-value" id="statChars">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">RATIO</div>
+        <div class="stat-value" id="statRatio">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">VOCAB SIZE</div>
+        <div class="stat-value" style="font-size:16px">~50K</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: TOKEN IDS -->
+  <div class="arrow">↓</div>
+  <div class="step step-3">
+    <div class="step-header">
+      <div class="step-num">03</div>
+      <div class="step-title">Token IDs</div>
+      <div class="step-desc">tokens → numbers</div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:14px;">
+      Each token maps to a unique integer ID in the vocabulary lookup table. This is what gets fed into the neural network.
+    </p>
+    <div class="token-id-grid" id="tokenIdsDisplay">
+      <span class="empty-state">Token IDs will appear here...</span>
+    </div>
+  </div>
+
+  <!-- STEP 4: EMBEDDINGS -->
+  <div class="arrow">↓</div>
+  <div class="step step-4">
+    <div class="step-header">
+      <div class="step-num">04</div>
+      <div class="step-title">Embeddings</div>
+      <div class="step-desc">IDs → vectors in space</div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:14px;">
+      Each Token ID is looked up in an embedding matrix — converted to a dense vector of ~768 to 4096 floats. 
+      Similar words have similar vectors. Each bar below = one dimension of the vector.
+    </p>
+    <div id="embeddingsDisplay">
+      <span class="empty-state">Embedding vectors will appear here...</span>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> positive dimension</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> negative dimension</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9ca3af"></div> near-zero</div>
+    </div>
+  </div>
+
+  <!-- STEP 5: SIMILARITY -->
+  <div class="arrow">↓</div>
+  <div class="step step-4" style="border-color: rgba(16,185,129,0.2)">
+    <div class="step-header">
+      <div class="step-num">05</div>
+      <div class="step-title">Cosine Similarity Matrix</div>
+      <div class="step-desc">how similar are tokens?</div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:14px;">
+      The model measures similarity between token vectors using cosine similarity (0 = unrelated, 1 = identical). 
+      This is how attention mechanisms decide which tokens to "pay attention to".
+    </p>
+    <div id="similarityDisplay">
+      <span class="empty-state">Similarity matrix will appear here...</span>
+    </div>
+    <div class="note" style="margin-top:14px">
+      Darker green = more similar tokens. The diagonal is always 1.0 (token vs itself). 
+      This is the foundation of the Transformer attention mechanism!
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const COLORS = ['tc-0','tc-1','tc-2','tc-3','tc-4','tc-5','tc-6','tc-7'];
+
+  // Simple tokenizer (word-level with subword simulation)
+  function tokenize(text) {
+    const tokens = [];
+    const words = text.trim().split(/\s+/);
+    words.forEach(word => {
+      if (word.length === 0) return;
+      // simulate subword tokenization for longer words
+      if (word.length > 8) {
+        tokens.push(word.slice(0, Math.ceil(word.length/2)));
+        tokens.push('##' + word.slice(Math.ceil(word.length/2)));
+      } else {
+        tokens.push(word);
+      }
+    });
+    return tokens;
+  }
+
+  // Generate pseudo token ID (deterministic based on string)
+  function strToId(s) {
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      hash = ((hash << 5) - hash) + s.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash % 49000) + 1000;
+  }
+
+  // Generate pseudo embedding vector (deterministic, 32-dim for display)
+  function getEmbedding(tokenId, dims = 32) {
+    const vec = [];
+    let seed = tokenId;
+    for (let i = 0; i < dims; i++) {
+      seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+      vec.push(((seed & 0xffff) / 32768.0) - 1.0);
+    }
+    return vec;
+  }
+
+  // Cosine similarity between two vectors
+  function cosineSim(a, b) {
+    let dot = 0, normA = 0, normB = 0;
+    for (let i = 0; i < a.length; i++) {
+      dot += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+    return dot / (Math.sqrt(normA) * Math.sqrt(normB) + 1e-8);
+  }
+
+  function process() {
+    const text = document.getElementById('inputText').value;
+    if (!text.trim()) return;
+
+    const tokens = tokenize(text);
+    const tokenIds = tokens.map(strToId);
+    const embeddings = tokenIds.map(id => getEmbedding(id));
+
+    renderTokens(tokens);
+    renderTokenIds(tokens, tokenIds);
+    renderEmbeddings(tokens, embeddings);
+    renderSimilarity(tokens, embeddings);
+
+    // Stats
+    document.getElementById('statsRow').style.display = 'flex';
+    document.getElementById('statTokens').textContent = tokens.length;
+    document.getElementById('statChars').textContent = text.length;
+    document.getElementById('statRatio').textContent = (text.length / tokens.length).toFixed(1);
+  }
+
+  function renderTokens(tokens) {
+    const container = document.getElementById('tokensDisplay');
+    container.innerHTML = '';
+    tokens.forEach((tok, i) => {
+      const chip = document.createElement('span');
+      chip.className = `token-chip ${COLORS[i % COLORS.length]}`;
+      chip.textContent = tok;
+      chip.setAttribute('data-id', `token_${i}`);
+      chip.style.animationDelay = `${i * 0.05}s`;
+      container.appendChild(chip);
+    });
+  }
+
+  function renderTokenIds(tokens, ids) {
+    const container = document.getElementById('tokenIdsDisplay');
+    container.innerHTML = '';
+    tokens.forEach((tok, i) => {
+      const box = document.createElement('div');
+      box.className = 'token-id-box';
+      box.style.animationDelay = `${i * 0.05}s`;
+      box.style.borderColor = getColorHex(i);
+      box.innerHTML = `<span class="word">${tok}</span><span class="id">${ids[i]}</span>`;
+      container.appendChild(box);
+    });
+  }
+
+  function getColorHex(i) {
+    const colors = ['#7c3aed','#06b6d4','#f59e0b','#10b981','#ef4444','#ec4899','#6366f1','#14b8a6'];
+    return colors[i % colors.length];
+  }
+
+  function renderEmbeddings(tokens, embeddings) {
+    const container = document.getElementById('embeddingsDisplay');
+    container.innerHTML = '';
+    const showTokens = tokens.slice(0, 6); // show max 6 for readability
+
+    showTokens.forEach((tok, i) => {
+      const vec = embeddings[i];
+      const card = document.createElement('div');
+      card.className = 'embedding-card';
+      card.style.animationDelay = `${i * 0.07}s`;
+      card.style.borderColor = getColorHex(i) + '40';
+
+      const label = document.createElement('div');
+      label.className = 'embedding-label';
+      label.innerHTML = `
+        <span class="emb-token" style="background:${getColorHex(i)}22; color:${getColorHex(i)}; border:1px solid ${getColorHex(i)}44">${tok}</span>
+        <span class="emb-dims">768-dim vector (showing 32)</span>
+      `;
+
+      // Bar chart
+      const bars = document.createElement('div');
+      bars.className = 'vector-bars';
+      vec.forEach(v => {
+        const bar = document.createElement('div');
+        bar.className = 'vbar';
+        const h = Math.abs(v) * 45;
+        bar.style.height = h + 'px';
+        bar.style.background = v > 0.1 ? '#10b981' : v < -0.1 ? '#ef4444' : '#334155';
+        bar.style.opacity = 0.4 + Math.abs(v) * 0.6;
+        bars.appendChild(bar);
+      });
+
+      // First 8 values text
+      const vals = document.createElement('div');
+      vals.className = 'vector-values';
+      vec.slice(0, 12).forEach(v => {
+        const span = document.createElement('span');
+        span.className = 'vval';
+        span.textContent = v.toFixed(3);
+        span.style.color = v > 0.1 ? '#047857' : v < -0.1 ? '#b91c1c' : '#9ca3af';
+        vals.appendChild(span);
+      });
+      const more = document.createElement('span');
+      more.className = 'vval';
+      more.textContent = '... +756 more';
+      vals.appendChild(more);
+
+      card.appendChild(label);
+      card.appendChild(bars);
+      card.appendChild(vals);
+      container.appendChild(card);
+    });
+
+    if (tokens.length > 6) {
+      const note = document.createElement('div');
+      note.style.cssText = 'color:#9ca3af;font-family:Space Mono,monospace;font-size:11px;padding:8px 0;';
+      note.textContent = `+ ${tokens.length - 6} more token embeddings not shown`;
+      container.appendChild(note);
+    }
+  }
+
+  function renderSimilarity(tokens, embeddings) {
+    const container = document.getElementById('similarityDisplay');
+    container.innerHTML = '';
+    const n = Math.min(tokens.length, 8);
+    const toks = tokens.slice(0, n);
+    const embs = embeddings.slice(0, n);
+
+    // Header row
+    const headerRow = document.createElement('div');
+    headerRow.className = 'sim-header-row';
+    toks.forEach(t => {
+      const cell = document.createElement('div');
+      cell.className = 'sim-header-cell';
+      cell.textContent = t.slice(0, 5);
+      headerRow.appendChild(cell);
+    });
+    container.appendChild(headerRow);
+
+    // Matrix rows
+    toks.forEach((rowTok, i) => {
+      const row = document.createElement('div');
+      row.className = 'sim-row';
+
+      const label = document.createElement('div');
+      label.className = 'sim-label';
+      label.textContent = rowTok;
+      row.appendChild(label);
+
+      toks.forEach((colTok, j) => {
+        const sim = cosineSim(embs[i], embs[j]);
+        const cell = document.createElement('div');
+        cell.className = 'sim-cell';
+        cell.textContent = sim.toFixed(2);
+        cell.title = `${rowTok} ↔ ${colTok}: ${sim.toFixed(3)}`;
+
+        // Color: high sim = green, low = dark, diagonal = bright
+        if (i === j) {
+          cell.style.background = 'rgba(16,185,129,0.3)';
+          cell.style.color = '#047857';
+        } else {
+          const intensity = (sim + 1) / 2;
+          const alpha = intensity * 0.35;
+          cell.style.background = `rgba(16,185,129,${alpha})`;
+          cell.style.color = intensity > 0.4 ? '#065f46' : '#9ca3af';
+        }
+        row.appendChild(cell);
+      });
+      container.appendChild(row);
+    });
+  }
+
+  // Auto-process on load
+  window.onload = process;
+
+  // Process on Enter key
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('inputText').addEventListener('keydown', e => {
+      if (e.key === 'Enter') process();
+    });
+  });
+</script>
+</body>
+</html>
