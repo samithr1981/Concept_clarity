@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Bharat AI Stack — Dark &amp; Light</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Manrope:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #080e1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 60px;
+  font-family: 'Manrope', sans-serif;
+}
+
+/* ══════════════════════════════════
+   SHARED CARD BASE
+══════════════════════════════════ */
+.card {
+  width: 840px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.22), 0 0 0 1px var(--card-border);
+}
+
+/* grid texture overlay */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 42px 42px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── DARK THEME ── */
+.dark {
+  --bg:            #0c1220;
+  --bg-header:     rgba(255,153,51,0.05);
+  --card-border:   rgba(255,255,255,0.05);
+  --grid-line:     rgba(255,255,255,0.022);
+  --headline:      #f5f0e6;
+  --tagline:       rgba(255,255,255,0.38);
+  --layer-border-1: rgba(255,153,51,0.22);
+  --layer-bg-1:    rgba(255,153,51,0.06);
+  --layer-border-2: rgba(100,160,255,0.22);
+  --layer-bg-2:    rgba(100,160,255,0.06);
+  --layer-border-3: rgba(56,200,90,0.22);
+  --layer-bg-3:    rgba(56,200,90,0.06);
+  --label-col:     rgba(255,255,255,0.07);
+  --num-1:         rgba(255,153,51,0.18);
+  --num-2:         rgba(100,160,255,0.18);
+  --num-3:         rgba(56,200,90,0.18);
+  --name-col:      #f5f0e6;
+  --role-1:        rgba(255,153,51,0.55);
+  --role-2:        rgba(100,160,255,0.55);
+  --role-3:        rgba(56,200,90,0.55);
+  --tg-label-1:    rgba(255,153,51,0.42);
+  --tg-label-2:    rgba(100,160,255,0.42);
+  --tg-label-3:    rgba(56,200,90,0.42);
+  --tag-bg-1:      rgba(255,153,51,0.10);
+  --tag-bdr-1:     rgba(255,153,51,0.26);
+  --tag-txt-1:     #ffc87a;
+  --tag-bg-1s:     rgba(255,153,51,0.04);
+  --tag-bdr-1s:    rgba(255,153,51,0.12);
+  --tag-txt-1s:    rgba(255,195,120,0.5);
+  --tag-bg-2:      rgba(100,160,255,0.10);
+  --tag-bdr-2:     rgba(100,160,255,0.26);
+  --tag-txt-2:     #93c5fd;
+  --tag-bg-2s:     rgba(100,160,255,0.04);
+  --tag-bdr-2s:    rgba(100,160,255,0.12);
+  --tag-txt-2s:    rgba(147,197,253,0.5);
+  --tag-bg-3:      rgba(56,200,90,0.10);
+  --tag-bdr-3:     rgba(56,200,90,0.26);
+  --tag-txt-3:     #86efac;
+  --tag-bg-3s:     rgba(56,200,90,0.04);
+  --tag-bdr-3s:    rgba(56,200,90,0.12);
+  --tag-txt-3s:    rgba(134,239,172,0.5);
+  --connector-line: rgba(255,255,255,0.05);
+  --connector-txt:  rgba(255,255,255,0.17);
+  --stats-bg:      rgba(255,255,255,0.02);
+  --stats-border:  rgba(255,255,255,0.055);
+  --stat-lbl:      rgba(255,255,255,0.2);
+  --footer-border: rgba(255,255,255,0.05);
+  --footer-txt:    rgba(255,255,255,0.18);
+  --footer-brand:  rgba(255,255,255,0.22);
+  --pill-bg:       rgba(255,153,51,0.10);
+  --pill-bdr:      rgba(255,153,51,0.25);
+  --pill-txt:      #FF9933;
+  background: var(--bg);
+}
+
+/* ══════════════════════════════════
+   HEADER
+══════════════════════════════════ */
+.header {
+  position: relative;
+  z-index: 1;
+  padding: 42px 52px 34px;
+  border-bottom: 1px solid var(--connector-line);
+  background: var(--bg-header);
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+.india-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-bdr);
+  border-radius: 100px;
+  padding: 7px 16px 7px 11px;
+}
+.india-pill .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--pill-txt);
+  animation: blink 2.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+.india-pill span {
+  font-size: 10.5px;
+  color: var(--pill-txt);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+.header-meta {
+  font-size: 10px;
+  color: var(--connector-txt);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 1px;
+  padding: 7px 14px;
+  border: 1px solid var(--connector-line);
+  border-radius: 100px;
+}
+.headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  color: var(--headline);
+  margin-bottom: 14px;
+}
+.hl-o { color: #FF9933; }
+
+.hl-g { color: #138808; }
+
+.tagline {
+  font-size: 12.5px;
+  color: var(--tagline);
+  line-height: 1.6;
+  max-width: 490px;
+  font-weight: 300;
+}
+
+/* ══════════════════════════════════
+   DIAGRAM
+══════════════════════════════════ */
+.diagram {
+  position: relative;
+  z-index: 1;
+  padding: 36px 52px;
+}
+
+/* flow connector between layers */
+.flow-connector {
+  display: flex;
+  align-items: center;
+  padding-left: 25px;
+  margin: -1px 0;
+}
+.flow-line {
+  width: 2px;
+  height: 30px;
+  background: linear-gradient(180deg, var(--from-c), var(--to-c));
+  flex-shrink: 0;
+}
+.flow-text {
+  margin-left: 14px;
+  font-size: 9px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--connector-txt);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* layer block */
+.layer {
+  border-radius: 12px;
+  border: 1px solid;
+  overflow: hidden;
+  animation: rise 0.45s ease backwards;
+}
+.layer-1 { border-color: var(--layer-border-1); background: var(--layer-bg-1); animation-delay:.08s }
+.layer-2 { border-color: var(--layer-border-2); background: var(--layer-bg-2); animation-delay:.22s }
+.layer-3 { border-color: var(--layer-border-3); background: var(--layer-bg-3); animation-delay:.36s }
+@keyframes rise { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+.layer-inner {
+  display: grid;
+  grid-template-columns: 188px 1fr;
+}
+
+/* left label */
+.layer-label {
+  padding: 24px 18px 24px 26px;
+  border-right: 1px solid var(--label-col);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+.layer-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.layer-1 .layer-number { color: var(--num-1); }
+.layer-2 .layer-number { color: var(--num-2); }
+.layer-3 .layer-number { color: var(--num-3); }
+.layer-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--name-col);
+  line-height: 1.2;
+}
+.layer-role {
+  font-size: 8.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.layer-1 .layer-role { color: var(--role-1); }
+.layer-2 .layer-role { color: var(--role-2); }
+.layer-3 .layer-role { color: var(--role-3); }
+
+/* right content */
+.layer-content {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.tg-label {
+  font-size: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.layer-1 .tg-label { color: var(--tg-label-1); }
+.layer-2 .tg-label { color: var(--tg-label-2); }
+.layer-3 .tg-label { color: var(--tg-label-3); }
+
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid;
+  transition: transform 0.12s;
+  cursor: default;
+  position: relative;
+}
+.tag:hover { transform: translateY(-1px); }
+.tag-icon { font-size: 12px; }
+.tag-new {
+  position: absolute;
+  top: -7px; right: -4px;
+  font-size: 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 100px;
+  letter-spacing: 0.2px;
+  background: #FF9933;
+  color: #fff;
+}
+
+/* data tags */
+.t1  { background: var(--tag-bg-1);  border-color: var(--tag-bdr-1);  color: var(--tag-txt-1); }
+.t1s { background: var(--tag-bg-1s); border-color: var(--tag-bdr-1s); color: var(--tag-txt-1s); font-size: 10.5px; }
+/* model tags */
+.t2  { background: var(--tag-bg-2);  border-color: var(--tag-bdr-2);  color: var(--tag-txt-2); }
+.t2s { background: var(--tag-bg-2s); border-color: var(--tag-bdr-2s); color: var(--tag-txt-2s); font-size: 10.5px; }
+/* agent tags */
+.t3  { background: var(--tag-bg-3);  border-color: var(--tag-bdr-3);  color: var(--tag-txt-3); }
+.t3s { background: var(--tag-bg-3s); border-color: var(--tag-bdr-3s); color: var(--tag-txt-3s); font-size: 10.5px; }
+
+/* ══════════════════════════════════
+   STATS BAR
+══════════════════════════════════ */
+.stats-bar {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--stats-border);
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  background: var(--stats-bg);
+}
+.stat-item {
+  padding: 18px 14px;
+  text-align: center;
+  border-right: 1px solid var(--stats-border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.dark  .sv1 { color: #FF9933; }
+.dark  .sv2 { color: #60a5fa; }
+.dark  .sv3 { color: #4ade80; }
+
+.stat-lbl {
+  font-size: 8.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--stat-lbl);
+}
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+.footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--footer-border);
+  padding: 16px 52px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-left {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.4px;
+  color: var(--footer-txt);
+}
+.footer-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--footer-brand);
+}
+.dark  .fb-o { color: #FF9933; }
+.dark  .fb-g { color: #138808; }
+
+/* ══════════════════════════════════
+   POST BOX
+══════════════════════════════════ */
+.post-box {
+  width: 840px;
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 32px 38px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+}
+.post-label {
+  font-size: 9.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.post-text {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.82;
+  color: #1e293b;
+  white-space: pre-wrap;
+}
+.post-text strong { font-weight: 700; color: #0f172a; }
+.hashtags {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 12px;
+  color: #0077b5;
+  font-family: 'IBM Plex Mono', monospace;
+  line-height: 1.9;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════
+     REUSABLE CARD HTML via template
+═══════════════════════════════ -->
+
+<!-- ══ DARK CARD ══ -->
+<div class="card dark">
+  <div class="header">
+    <div class="header-row">
+      <div class="india-pill">
+        <div class="dot"></div>
+        <span>India · Sovereign AI Architecture</span>
+      </div>
+      <div class="header-meta">February 2026</div>
+    </div>
+    <div class="headline">The <span class="hl-o">Bharat</span><br><span class="hl-g">AI</span> Stack</div>
+    <div style="height:12px"></div>
+    <div class="tagline">A 3-layer framework for India's indigenous AI ecosystem — from the world's richest public data infrastructure to intelligent agents reshaping finance, health &amp; governance for 1.4B citizens.</div>
+  </div>
+
+  <div class="diagram" id="diag-dark"></div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-val sv1">21.7B</div><div class="stat-lbl">UPI txns Jan '26 ↑28%YoY</div></div>
+    <div class="stat-item"><div class="stat-val sv2">38K+</div><div class="stat-lbl">GPUs deployed (58K+ pipeline)</div></div>
+    <div class="stat-item"><div class="stat-val sv2">12</div><div class="stat-lbl">Gov-funded LLM builders</div></div>
+    <div class="stat-item"><div class="stat-val sv3">₹28.3T</div><div class="stat-lbl">UPI value Jan '26 record</div></div>
+    <div class="stat-item"><div class="stat-val sv3">700M</div><div class="stat-lbl">UPI transactions/day</div></div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">Data → Models → Agents · The Bharat AI Stack · Feb 2026</div>
+    <div class="footer-brand"><span class="fb-o">Bharat</span> <span class="fb-g">AI</span> Stack</div>
+  </div>
+</div>
+
+<!-- ══ LINKEDIN POST ══ -->
+
+<div class="post-box">
+  <div class="post-label">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="#0077b5"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    LinkedIn Post — Copy ready
+  </div>
+  <div class="post-text">India is quietly building something no other country has attempted — a full-stack, sovereign AI architecture on top of the world's most powerful public data infrastructure.
+
+I call it <strong>The Bharat AI Stack 🇮🇳</strong>
+
+━━━━━━━━━━━━━━━━━━━━━
+
+<strong>LAYER 1 → DATA INFRASTRUCTURE</strong>
+
+The foundation no one else can replicate:
+
+▸ <strong>UPI</strong> — 21.7 Billion transactions in January 2026 alone. New all-time record. ₹28.3 Trillion in value. 700 million transactions every single day. Growing 28% year-on-year.
+▸ <strong>ONDC</strong> — Broke Amazon and Flipkart's data moats. Every kirana store now generates AI-trainable commerce data.
+▸ <strong>Aadhaar</strong> — 1.4 billion verified identities. The world's largest biometric dataset.
+▸ <strong>Account Aggregator</strong> — Consent-based financial data flows across 100+ institutions.
+▸ <strong>BHASHINI</strong> — 22 Indian languages digitised and machine-readable.
+▸ <strong>AIKosh</strong> — 5,500+ curated India-specific datasets open to all builders.
+
+This isn't just data. This is <em>training infrastructure</em> for AI that truly understands India.
+
+━━━━━━━━━━━━━━━━━━━━━
+
+<strong>LAYER 2 → FOUNDATION MODELS</strong>
+
+India's sovereign LLM stack is now real:
+
+▸ <strong>Sarvam AI</strong> — Govt-selected sovereign LLM. 120B parameter open-source model built entirely on Indian infrastructure. Not fine-tuned ChatGPT.
+▸ <strong>Krutrim 2</strong> — 12B multilingual model. India's first AI unicorn (Ola / Bhavish Aggarwal).
+▸ <strong>Gnani.ai</strong> — 14B+ voice-first foundation model. Multilingual real-time speech processing.
+▸ <strong>Hanooman</strong> — IIT Bombay + Reliance Jio multimodal model.
+▸ <strong>BharatGPT / BharatGen</strong> — 17B MoE model using NVIDIA NeMo framework.
+
+Domain-specific models changing industries:
+▸ <strong>FiMI (NPCI)</strong> — World's first payments-native LLM. Trained on UPI dispute resolution, mandate lifecycles, RBI corpus.
+▸ <strong>Fractal Fathom-R1</strong> — 14B reasoning model
+▸ <strong>Intellihealth · Shodh AI (agri) · Soket AI (education)</strong>
+
+The IndiaAI Mission now has <strong>38,000+ GPUs deployed</strong> — with another 20,000 in the pipeline under Mission 2.0. Total India GPU capacity (public + private) is crossing 80,000+.
+
+━━━━━━━━━━━━━━━━━━━━━
+
+<strong>LAYER 3 → INTELLIGENT AGENTS</strong>
+
+Where it all compounds:
+
+▸ <strong>SBI SIA</strong> — 10M+ queries/month across 14 languages
+▸ <strong>ICICI iPal</strong> — Instant loan approvals in 5 minutes
+▸ <strong>UPI AI Delegate</strong> — Agentic payments where your devices transact autonomously on your behalf
+▸ AI KYC/AML — onboarding cut from days to hours
+▸ InsurTech claims agents — auto-settling in minutes
+▸ Agri credit agents — MSME lending for farmers without credit scores
+▸ CoRover.ai — handles 10,000 concurrent users for Indian Railways booking
+
+━━━━━━━━━━━━━━━━━━━━━
+
+<strong>The insight that changes everything:</strong>
+
+India's AI advantage isn't just talent or compute.
+
+It's that <strong>the data layer is public, open, and government-mandated at a scale no private company could build.</strong>
+
+When UPI logs 700 million transactions daily, when Aadhaar authenticates a billion citizens, when BHASHINI translates across 22 languages — that signal trains models that understand India in ways no Western LLM trained on English internet text ever can.
+
+The stack is: <strong>DPI → Sovereign LLMs → Intelligent Agents.</strong>
+
+And it's compounding faster than most people realise.
+
+Which layer do you think will create the most economic value in the next 5 years?
+
+Drop your view below 👇</div>
+  <div class="hashtags">#IndiaAI #BharatAIStack #UPI #FiMI #ONDC #SovereignAI #GenAI #LLM #FinTech #DigitalIndia #Sarvam #Krutrim #DPI #AIStrategy #IndiaAIMission #BharatGPT</div>
+</div>
+
+<script>
+// Build diagram HTML once, inject into both dark and light cards
+function makeDiagramHTML() {
+  return `
+    <!-- LAYER 1 DATA -->
+    <div class="layer layer-1">
+      <div class="layer-inner">
+        <div class="layer-label">
+          <div class="layer-number">01</div>
+          <div class="layer-name">Data &amp;<br>Infrastructure</div>
+          <div class="layer-role">Foundation Layer</div>
+        </div>
+        <div class="layer-content">
+          <div>
+            <div class="tg-label">Public Digital Infrastructure (DPI)</div>
+            <div class="tags">
+              <div class="tag t1"><span class="tag-icon">⚡</span>UPI · 21.7B txns/mo Jan '26 ▲</div>
+              <div class="tag t1"><span class="tag-icon">🛒</span>ONDC · Open Commerce</div>
+              <div class="tag t1"><span class="tag-icon">🪪</span>Aadhaar · 1.4B IDs</div>
+              <div class="tag t1"><span class="tag-icon">🔗</span>Account Aggregator</div>
+              <div class="tag t1"><span class="tag-icon">🏥</span>ABHA Health IDs</div>
+            </div>
+          </div>
+          <div>
+            <div class="tg-label">AI Compute, Data &amp; Governance</div>
+            <div class="tags">
+              <div class="tag t1s"><span class="tag-icon">🖥️</span>IndiaAI · 38K+ GPUs deployed / 58K+ pipeline</div>
+              <div class="tag t1s"><span class="tag-icon">🌐</span>BHASHINI · 22 languages</div>
+              <div class="tag t1s"><span class="tag-icon">📦</span>AIKosh · 5,500+ datasets</div>
+              <div class="tag t1s"><span class="tag-icon">🔐</span>DPDP Act 2023</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONNECTOR 1→2 -->
+    <div class="flow-connector">
+      <div class="flow-line" style="--from-c:rgba(200,100,10,0.45);--to-c:rgba(60,120,240,0.45)"></div>
+      <div class="flow-text">trains &amp; grounds ↓</div>
+    </div>
+
+    <!-- LAYER 2 MODELS -->
+    <div class="layer layer-2">
+      <div class="layer-inner">
+        <div class="layer-label">
+          <div class="layer-number">02</div>
+          <div class="layer-name">Foundation<br>Models</div>
+          <div class="layer-role">Intelligence Layer</div>
+        </div>
+        <div class="layer-content">
+          <div>
+            <div class="tg-label">Sovereign &amp; Multilingual LLMs</div>
+            <div class="tags">
+              <div class="tag t2" style="position:relative"><span class="tag-icon">🏛️</span>Sarvam AI · 120B sovereign open model<span class="tag-new">GOV</span></div>
+              <div class="tag t2" style="position:relative"><span class="tag-icon">🤖</span>Krutrim 2 · 12B multilingual<span class="tag-new">🦄</span></div>
+              <div class="tag t2"><span class="tag-icon">🗣️</span>Gnani.ai · 14B+ voice LLM</div>
+              <div class="tag t2"><span class="tag-icon">🌍</span>BharatGen · 17B MoE (IIT+Jio)</div>
+              <div class="tag t2"><span class="tag-icon">🧩</span>Hanooman · Multimodal</div>
+            </div>
+          </div>
+          <div>
+            <div class="tg-label">Domain-Specific Models</div>
+            <div class="tags">
+              <div class="tag t2s" style="position:relative"><span class="tag-icon">💳</span>FiMI · NPCI Payments LLM (world-first)<span class="tag-new">NEW</span></div>
+              <div class="tag t2s"><span class="tag-icon">📐</span>Fractal Fathom-R1 · 14B reasoning</div>
+              <div class="tag t2s"><span class="tag-icon">⚕️</span>Intellihealth · Medical AI</div>
+              <div class="tag t2s"><span class="tag-icon">🌾</span>Shodh AI · Agriculture SLMs</div>
+              <div class="tag t2s"><span class="tag-icon">⚖️</span>Legal domain LLMs</div>
+              <div class="tag t2s"><span class="tag-icon">🎓</span>Soket AI · Education models</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONNECTOR 2→3 -->
+    <div class="flow-connector">
+      <div class="flow-line" style="--from-c:rgba(60,120,240,0.45);--to-c:rgba(20,160,60,0.45)"></div>
+      <div class="flow-text">powers &amp; orchestrates ↓</div>
+    </div>
+
+    <!-- LAYER 3 AGENTS -->
+    <div class="layer layer-3">
+      <div class="layer-inner">
+        <div class="layer-label">
+          <div class="layer-number">03</div>
+          <div class="layer-name">Intelligent<br>Agents</div>
+          <div class="layer-role">Application Layer</div>
+        </div>
+        <div class="layer-content">
+          <div>
+            <div class="tg-label">Banking, Payments &amp; Lending Copilots</div>
+            <div class="tags">
+              <div class="tag t3"><span class="tag-icon">🏦</span>SBI SIA · 10M+ queries/month</div>
+              <div class="tag t3"><span class="tag-icon">🏦</span>HDFC EVA · Lending &amp; support</div>
+              <div class="tag t3"><span class="tag-icon">🏦</span>ICICI iPal · 5-min instant loans</div>
+              <div class="tag t3"><span class="tag-icon">⚡</span>UPI AI Delegate · Agentic payments</div>
+            </div>
+          </div>
+          <div>
+            <div class="tg-label">Insurance, Wealth, Gov &amp; Cross-sector</div>
+            <div class="tags">
+              <div class="tag t3s"><span class="tag-icon">🛡️</span>InsurTech Claims · Auto-settle</div>
+              <div class="tag t3s"><span class="tag-icon">📈</span>AI Wealth Advisors · Robo-AUM</div>
+              <div class="tag t3s"><span class="tag-icon">🌾</span>Agri Credit Agents · MSME</div>
+              <div class="tag t3s"><span class="tag-icon">✅</span>AI KYC/AML · Days → hours</div>
+              <div class="tag t3s"><span class="tag-icon">🚂</span>CoRover · 10K concurrent users (IRCTC)</div>
+              <div class="tag t3s"><span class="tag-icon">🤝</span>Yellow.ai · Voice fintech</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('diag-dark').innerHTML = makeDiagramHTML();
+</script>
+</body>
+</html>
